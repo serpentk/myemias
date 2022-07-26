@@ -9,6 +9,8 @@
                  [reloaded.repl "0.2.4"]
                  [org.clojure/java.jdbc "0.7.12"]
                  [org.postgresql/postgresql "42.4.0"]
+                 [compojure "1.7.0"]
+                 [org.clojure/data.json "2.4.0"]
                 ]
   :main ^:skip-aot emias.core
   :target-path "target/%s"

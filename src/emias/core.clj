@@ -1,13 +1,9 @@
 (ns emias.core
   (:require [org.httpkit.server :refer [run-server]]
             [com.stuartsierra.component :as component]
+            [emias.web :refer [app]]
            )
   (:gen-class))
-
-(defn app [req]
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    "hello HTTP!"})
 
 (defn start-server [handler port]
   (run-server handler {:port port}))
