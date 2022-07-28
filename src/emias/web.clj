@@ -20,6 +20,12 @@
      :headers {"Content-Type" "application/json"}
      :body (json/write-str (create-patient data))}))
 
+(defn edit-patient [id r]
+  (let [data (json/read-json (slurp (:body r)))]
+   {:status 200
+    :headers {"Content-Type" "application/json"}
+    :body (json/write-str (update-patient (assoc data :id id)))}))
+
 (defn del-patient [id]
   (do
     (delete-patient id)
@@ -30,4 +36,5 @@
   (GET "/patients/" [page limit] (patients page limit))
   (GET "/patients/:id/" [id] (get-patient-info id))
   (DELETE "/patients/:id/" [id] (del-patient id))
-  (POST "/patients/" req (new-patient req)))
+  (POST "/patients/" req (new-patient req))
+  (PUT "/patients/:id/" [id :as r] (edit-patient id r)))
