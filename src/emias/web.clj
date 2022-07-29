@@ -32,7 +32,14 @@
     {:status 204
     :headers {"Content-Type" "application/json"}}))
 
+(defn index [req]
+  {:status  200
+   :headers {"Content-Type" "text/html"}
+   :body    "Hello from Compojure!"})
+
 (defroutes app
+  (GET "/" [] index)
+  (resources "/")
   (GET "/patients/" [page limit] (patients page limit))
   (GET "/patients/:id/" [id] (get-patient-info id))
   (DELETE "/patients/:id/" [id] (del-patient id))
