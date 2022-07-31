@@ -11,17 +11,25 @@
                  [org.postgresql/postgresql "42.4.0"]
                  [compojure "1.7.0"]
                  [org.clojure/data.json "2.4.0"]
+                 [reagent "1.1.1"]
+                 [cljsjs/react "18.0.0-rc.0-0"]
+                 [cljsjs/react-dom "18.0.0-rc.0-0"]
+                 [cider/piggieback "0.5.3"]
                 ]
   :main ^:skip-aot emias.core
   :target-path "target/%s"
   :profiles {:dev {:plugins [[lein-cljsbuild "1.1.8"]
-                             [lein-figwheel "0.5.18"]]
+                             [lein-figwheel "0.5.18"]
+                             [figwheel-sidecar "0.5.20"]]
                    :dependencies [[reloaded.repl "0.2.4"]]
                    :source-paths ["dev"]
-                   :cljsbuild {:builds [{:source-paths ["src" "dev"]
+                   :cljsbuild {:builds [{:id "dev"
+                                         :source-paths ["src" "dev"]
                                          :figwheel true
-                                         :compiler {:output-to "target/classes/public/app.js"
+                                         :compiler {:main emias.client
+                                                    :output-to "target/classes/public/app.js"
                                                     :output-dir "target/classes/public/out"
                                                     :optimizations :none
                                                     :recompile-dependents true
-                                                    :source-map true}}]}}})
+                                                    :source-map true}}]}
+                   :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}})
