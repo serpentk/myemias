@@ -27,8 +27,9 @@
                                          :source-paths ["src" "dev"]
                                          :figwheel true
                                          :compiler {:main emias.client
-                                                    :output-to "target/classes/public/app.js"
-                                                    :output-dir "target/classes/public/out"
+                                                    :asset-path "out"
+                                                    :output-to "target/default/classes/public/app.js"
+                                                    :output-dir "target/default/classes/public/out"
                                                     :optimizations :none
                                                     :recompile-dependents true
                                                     :source-map true}}]}
