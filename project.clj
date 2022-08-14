@@ -15,6 +15,7 @@
                  [cljsjs/react "18.0.0-rc.0-0"]
                  [cljsjs/react-dom "18.0.0-rc.0-0"]
                  [cider/piggieback "0.5.3"]
+                 [thheller/shadow-cljs "2.19.8"]
                 ]
   :main ^:skip-aot emias.core
   :target-path "target/%s"
