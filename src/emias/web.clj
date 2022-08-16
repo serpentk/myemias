@@ -4,7 +4,8 @@
             [emias.db :refer [filter-patients get-patient create-patient delete-patient update-patient default-limit]]
             [ring.middleware.params :as wp]
             [clojure.string :as string]
-            [clojure.data.json :as json]))
+            [clojure.data.json :as json]
+            [java-time :as jt]))
 
 (defn int-or-default [x default]
   (try (Integer/parseUnsignedInt x) (catch NumberFormatException _ default)))
@@ -45,13 +46,24 @@
 
 (defn check-gender [gender]
   (let [valid (or (= gender "f") (= gender "m"))
-        error (if valid "" "Gender must be 'f' or 'm'")]
+        error (if valid nil "Gender must be 'f' or 'm'")]
     [valid error])
   )
 
+(defn check-birthdate [birthdate]
+  (try
+    (do
+      (jt/local-date "yyyy-MM-dd" birthdate)
+      [true nil])
+    (catch Exception e [false "Wrong birthdate format"])))
+
 (defn validate-patient [patient]
-  (check-gender (patient :gender))
-  )
+  (let [gender-check (check-gender (patient :gender))
+        birthdate-check (check-birthdate (patient :birthdate))]
+    (if (and (first gender-check) (first birthdate-check))
+      [true nil]
+      [false (filter some? (map second [gender-check birthdate-check]))]
+    )))  
 
 (defn get-patient-info [id]
   {:status 200

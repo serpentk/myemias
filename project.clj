@@ -16,6 +16,7 @@
                  [cljsjs/react-dom "18.0.0-rc.0-0"]
                  [cider/piggieback "0.5.3"]
                  [thheller/shadow-cljs "2.19.8"]
+                 [clojure.java-time "0.3.3"]
                 ]
   :main ^:skip-aot emias.core
   :target-path "target/%s"
