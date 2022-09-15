@@ -17,6 +17,7 @@
                  [cider/piggieback "0.5.3"]
                  [thheller/shadow-cljs "2.19.8"]
                  [clojure.java-time "0.3.3"]
+                 [cljs-ajax "0.8.4" :exclusions [com.fasterxml.jackson.core/jackson-core]]
                 ]
   :main ^:skip-aot emias.core
   :target-path "target/%s"
