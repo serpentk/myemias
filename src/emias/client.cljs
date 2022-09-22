@@ -5,13 +5,7 @@
 
 (def patients (reagent.core/atom []))
 
-(def new-patient-name (reagent.core/atom ""))
-(def new-patient-patronymic (reagent.core/atom ""))
-(def new-patient-surname (reagent.core/atom ""))
-(def new-patient-birthdate (reagent.core/atom ""))
-(def new-patient-policy (reagent.core/atom ""))
-(def new-patient-address (reagent.core/atom ""))
-(def new-patient-gender (reagent.core/atom "f"))
+(def new-patient-data (reagent.core/atom {:gender "f"}))
 
 (def search-params (reagent.core/atom {}))
 
@@ -83,6 +77,11 @@
    ]
   )
 
+(defn handle-patient-added []
+  (do
+    (reset! new-patient-data {:gender "f"})
+    (fetch-patients)))
+
 (defn search-form []
     [:form {:on-submit #(.preventDefault %)}
    [:label {:for "name"} "Имя: "]
@@ -139,56 +138,56 @@
    [:input {:type "text"
             :id "name"
             :name "name"
-            :value @new-patient-name
-            :on-change #(reset! new-patient-name (-> % .-target .-value) )}]
+            :value (:name @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :name (-> % .-target .-value)) )}]
    [:label {:for "patronymic"} "Отчество: "]
    [:input {:type "text"
             :id "patronymic"
             :name "patronymic"
-            :value @new-patient-patronymic
-            :on-change #(reset! new-patient-patronymic (-> % .-target .-value) )}]
+            :value (:patronymic @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :patronymic (-> % .-target .-value)) )}]
    [:label {:for "surname"} "Фамилия: "]
    [:input {:type "text"
             :id "surname"
             :name "surname"
-            :value @new-patient-surname
-            :on-change #(reset! new-patient-surname (-> % .-target .-value) )}]
+            :value (:surname @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :surname (-> % .-target .-value)) )}]
    [:label {:for "birthdate"} "Дата рождения: "]
    [:input {:type "text"
             :id "birthdate"
             :name "birthdate"
-            :value @new-patient-birthdate
-            :on-change #(reset! new-patient-birthdate (-> % .-target .-value) )}]
+            :value (:birthdate @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :birthdate (-> % .-target .-value)) )}]
    [:label {:for "address"} "Адрес: "]
    [:input {:type "text"
             :id "address"
             :name "address"
-            :value @new-patient-address
-            :on-change #(reset! new-patient-address (-> % .-target .-value) )}]
+            :value (:address @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :address (-> % .-target .-value)) )}]
    [:label {:for "policy"} "Полис: "]
    [:input {:type "text"
             :id "policy"
             :name "policy"
-            :value @new-patient-policy
-            :on-change #(reset! new-patient-policy (-> % .-target .-value) )}]
+            :value (:policy @new-patient-data)
+            :on-change #(reset! new-patient-data (assoc @new-patient-data :policy (-> % .-target .-value)) )}]
    [:label {:for "gender"} "Пол: "]
    [:select {:name "gender"
              :id "gender"
-             :on-change #(reset! new-patient-gender (-> % .-target .-value) )}
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :gender (-> % .-target .-value)) )}
     [:option {:value "f"} "ж"]
     [:option {:value "m"} "м"]] 
    [:input {:type "button"
             :value "Пошёл страус!"
             :on-click #(POST "/patients/"
                              {:format :json
-                              :handler fetch-patients
-                              :params {:name @new-patient-name
-                                       :gender @new-patient-gender
-                                       :patronymic @new-patient-patronymic,
-                                       :surname @new-patient-surname
-                                       :birthdate @new-patient-birthdate
-                                       :address @new-patient-address
-                                       :policy @new-patient-policy}})}]])
+                              :handler handle-patient-added
+                              :params {:name (:name @new-patient-data)
+                                       :gender (:gender @new-patient-data)
+                                       :patronymic (:patronymic @new-patient-data)
+                                       :surname (:surname @new-patient-data)
+                                       :birthdate (:birthdate @new-patient-data)
+                                       :address (:address @new-patient-data)
+                                       :policy (:policy @new-patient-data)}})}]])
 
 (reagent.dom/render
  [page-content]
