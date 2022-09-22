@@ -14,10 +14,10 @@
   (let [limit (int-or-default (params "limit") default-limit)
         page-index (- (int-or-default (params "page") 1) 1)]
     {:offset (* page-index limit)
-     :limit limit}))
+     :limit (+ 1 limit)}))
 
 (defn get-filters [params]
-  (let [allowed '(:id :name :surname :patronymic :birthdate :policy)]
+  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender)]
     (reduce #(if (params (name %2))
                (assoc %1 %2 (params (name %2)))
                %1) {} allowed)))
@@ -37,12 +37,18 @@
   )
 
 (defn patients [req]
-  (let [params (:params req)]
+  (let [params (:params req)
+        limits (get-limits params)
+        sorting (get-sorting params)
+        filters (get-filters params)
+        data (filter-patients filters :limits limits :sorting sorting)
+        current-page (int-or-default (params "page") 1)
+        has-next (= (count data) (:limit limits))
+        ]
     {:status  200
      :headers {"Content-Type" "application/json"}
-     :body (json/write-str (filter-patients (get-filters params)
-                                            :limits (get-limits params)
-                                            :sorting (get-sorting params)))}))
+     :body (json/write-str {:page {:current current-page :has-next has-next} 
+                            :result (into [] (take (- (:limit limits) 1) data))})}))
 
 (defn get-patient-info [id]
   {:status 200
