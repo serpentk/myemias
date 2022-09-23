@@ -48,24 +48,22 @@
    [pager]
    ])
 
+(defn change-page [page-num]
+  #(GET "/patients/"
+        {:response-format :json
+         :handler reset-patients
+         :keywords? :true
+         :params (into {:page page-num}
+                       (filter (fn [p] (not (= (val p) "")))
+                               @search-params))})
+  )
+
 (defn next-page []
-  [:span {:on-click #(GET "/patients/"
-                            {:response-format :json
-                             :handler reset-patients
-                             :keywords? :true
-                             :params (into {:page (+ 1 (:current @page))}
-                                           (filter (fn [p] (not (= (val p) "")))
-                                                   @search-params))})}        
+  [:span {:on-click (change-page (+ 1 (:current @page)))}        
           " >"])
 
 (defn prev-page []
-  [:span {:on-click #(GET "/patients/"
-                            {:response-format :json
-                             :handler reset-patients
-                             :keywords? :true
-                             :params (into {:page (- (:current @page) 1)}
-                                           (filter (fn [p] (not (= (val p) "")))
-                                                   @search-params))})}        
+  [:span {:on-click (change-page (- (:current @page) 1))}        
           "< "])
 
 (defn pager []
@@ -181,13 +179,7 @@
             :on-click #(POST "/patients/"
                              {:format :json
                               :handler handle-patient-added
-                              :params {:name (:name @new-patient-data)
-                                       :gender (:gender @new-patient-data)
-                                       :patronymic (:patronymic @new-patient-data)
-                                       :surname (:surname @new-patient-data)
-                                       :birthdate (:birthdate @new-patient-data)
-                                       :address (:address @new-patient-data)
-                                       :policy (:policy @new-patient-data)}})}]])
+                              :params @new-patient-data})}]])
 
 (reagent.dom/render
  [page-content]
