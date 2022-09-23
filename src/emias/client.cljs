@@ -1,7 +1,7 @@
 (ns emias.client
   (:require [reagent.core]
             [reagent.dom]
-            [ajax.core :refer [GET POST]]))
+            [ajax.core :refer [GET POST DELETE]]))
 
 (def patients (reagent.core/atom []))
 
@@ -29,9 +29,17 @@
                                     @search-params))
               }))
 
-(defn patient-row [p]
-  [:tr [:td (str (:id p))] [:td (:name p)] [:td (:surname p)]]
+(defn delete-patient-button [p]
+  [:input {:type "button"
+           :value "Этот не нужен"
+           :on-click #(DELETE (str "/patients/" (:id p) "/")
+                              {:handler fetch-patients})}
+           ]
   )
+(defn patient-row [p]
+  [:tr [:td (str (:id p))] [:td (:name p)] [:td (:surname p)] [:td (delete-patient-button p)]])
+  
+
 
 (defn data-table []
   (into
