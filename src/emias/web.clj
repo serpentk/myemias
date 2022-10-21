@@ -84,18 +84,12 @@
     {:status 204
     :headers {"Content-Type" "application/json"}}))
 
-(defn index [req]
-  {:status  200
-   :headers {"Content-Type" "text/html"}
-   :body    "Hello from Compojure!"})
-
 (defroutes app
   (GET "/patients/" req ((wp/wrap-params patients) req))
   (GET "/patients/:id/" [id] (get-patient-info id))
   (DELETE "/patients/:id/" [id] (del-patient id))
   (POST "/patients/" req (new-patient req))
   (PUT "/patients/:id/" [id :as r] (edit-patient id r))
-  ;; (GET "/" [] index)
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (resources "/") 
  )

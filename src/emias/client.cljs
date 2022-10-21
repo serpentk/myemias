@@ -16,8 +16,11 @@
 
 (defn reset-patients [data]
   (do
-    (reset! patients (:result data))
+    (reset! patients (prepare-patients-dict (:result data)))
     (reset! page (:page data))))
+
+(defn prepare-patients-dict [datalist]
+  (reduce #(assoc %1 (:id %2) (assoc (assoc %2 :processing false) :birthdate (subs (:birthdate %2) 0 10))) {} datalist))
 
 (defn fetch-patients []
   (GET "/patients/"
@@ -29,43 +32,54 @@
                                     @search-params))
               }))
 
+(defn handle-edited [p]
+  #(reset! patients (assoc @patients (:id p) (assoc p :processing false))))
+
+(def edit-fields [:name :patronymic :surname :address :policy :gender :birthdate])
+
 (defn edit-patient-form [p]
-  [:td [:input {:type "text"
-                :value (:name p)
-                :id (str (:id p) "-name")}]]
-  [:td [:input {:type "text"
-                :value (:patronymic p)
-                :id (str (:id p) "-patronymic")}]]
-  [:td [:input {:type "text"
-                :value (:surname p)
-                :id (str (:id p) "-surname")}]]
-  [:td [:input {:type "text"
-                :value (:birthdate p)
-                :id (str (:id p) "-birthdate")}]]
-  [:td [:input {:type "text"
-                :value (:address p)
-                :id (str (:id p) "-address")}]]
-  [:td [:input {:type "text"
-                :value (:policy p)
-                :id (str (:id p) "-policy")}]]
-  [:td [:select {:name "gender"
-                 :id "gender"
-                 :value (:gender p)}
-        [:option {:value "f"} "ж"]
-        [:option {:value "m"} "м"]]]
-  [:td [:input {:type "button"
-                :value "Пошёл страус!"
-                :on-click #(PUT (str "/patients/" (:id p) "/")
-                                {:format :json
-                                 :handler fetch-patients
-                                 :params {:name (:value (js/document.getElementById (str (:id p) "-name")))}})}]])
+  [:tr 
+   [:td [:input {:type "text"
+                 :value (:name p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :name (-> % .-target .-value))) )
+                 :id (str (:id p) "-name")}]]
+   [:td [:input {:type "text"
+                 :value (:patronymic p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :patronymic (-> % .-target .-value))) )
+                 :id (str (:id p) "-patronymic")}]]
+   [:td [:input {:type "text"
+                 :value (:surname p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :surname (-> % .-target .-value))) )
+                 :id (str (:id p) "-surname")}]]
+   [:td [:input {:type "text"
+                 :value (:birthdate p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :birthdate (-> % .-target .-value))) )
+                 :id (str (:id p) "-birthdate")}]]
+   [:td [:input {:type "text"
+                 :value (:address p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :address (-> % .-target .-value))) )
+                 :id (str (:id p) "-address")}]]
+   [:td [:input {:type "text"
+                 :value (:policy p)
+                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :policy (-> % .-target .-value))) )
+                 :id (str (:id p) "-policy")}]]
+   [:td [:select {:name "gender"
+                  :id "gender"
+                  :on-change #(reset! patients (assoc @patients (:id p) (assoc p :gender (-> % .-target .-value))) )
+                  :value (:gender p)}
+         [:option {:value "f"} "ж"]
+         [:option {:value "m"} "м"]]]
+   [:td [:input {:type "button"
+                 :value "Пошёл страус!"
+                 :on-click #(PUT (str "/patients/" (:id p) "/")
+                                 {:format :json
+                                  :handler (handle-edited p)
+                                  :params (select-keys (get @patients (:id p)) edit-fields) })}]]])
 
 (defn edit-patient-button [p]
   [:input {:type "button"
            :value "Поправить"
-           :on-click #(reagent.dom/render
-                       (edit-patient-form p)
-                       (js/document.getElementById (str (:id p))))}])
+           :on-click #(reset! patients (assoc @patients (:id p) (assoc p :processing true)))}])
 
 (defn delete-patient-button [p]
   [:input {:type "button"
@@ -74,19 +88,21 @@
                               {:handler fetch-patients})}])
 
 (defn patient-row [p]
-  [:tr {:id (str (:id p))}
-   [:td (str (:id p))]
-   [:td (:name p)]
-   [:td (:surname p)]
-   ;; [:td (edit-patient-button p)]
-   [:td (delete-patient-button p)]])
+  (if (:processing p)
+    (edit-patient-form p)
+    [:tr {:id (str (:id p))}
+     [:td (str (:id p))]
+     [:td (:name p)]
+     [:td (:surname p)]
+     [:td (edit-patient-button p)]
+     [:td (delete-patient-button p)]]))
 
 (defn data-table []
   [:table
    (into
     [:tbody
      [:tr [:th "ID"] [:th "Имя"] [:th "Фамилия"]]]
-    (map patient-row @patients))])
+    (map patient-row (vals @patients)))])
 
 (defn page-content []
   [:div
