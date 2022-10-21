@@ -23,6 +23,10 @@ FIXME: listing of options this app accepts.
 ### Bugs
 
 ...
+### TODO
+- Make address json field (and add search by fields of this json)
+- Add client validation
+- Add client error handling
 
 ### Any Other Sections
 ### That You Think
