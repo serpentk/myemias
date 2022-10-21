@@ -93,7 +93,12 @@
     [:tr {:id (str (:id p))}
      [:td (str (:id p))]
      [:td (:name p)]
+     [:td (:patronymic p)]
      [:td (:surname p)]
+     [:td (:birthdate p)]
+     [:td (:address p)]
+     [:td (:policy p)]
+     [:td (if (= (:gender p) "f") "ж" "м")]
      [:td (edit-patient-button p)]
      [:td (delete-patient-button p)]]))
 
