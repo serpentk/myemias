@@ -26,6 +26,7 @@ FIXME: listing of options this app accepts.
 - Make address json field (and add search by fields of this json)
 - Add client validation
 - Add client error handling
+- Tests!!!
 
 ### Any Other Sections
 ### That You Think
