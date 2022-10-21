@@ -1,13 +1,13 @@
 (ns emias.client
   (:require [reagent.core]
             [reagent.dom]
-            [ajax.core :refer [GET POST DELETE]]))
+            [ajax.core :refer [GET POST PUT DELETE]]))
 
 (def patients (reagent.core/atom []))
 
 (def new-patient-data (reagent.core/atom {:gender "f"}))
 
-(def search-params (reagent.core/atom {}))
+(def search-params (reagent.core/atom {:gender ""}))
 
 (def page (reagent.core/atom {:current 1 :has-next false}))
 
@@ -29,22 +29,64 @@
                                     @search-params))
               }))
 
+(defn edit-patient-form [p]
+  [:td [:input {:type "text"
+                :value (:name p)
+                :id (str (:id p) "-name")}]]
+  [:td [:input {:type "text"
+                :value (:patronymic p)
+                :id (str (:id p) "-patronymic")}]]
+  [:td [:input {:type "text"
+                :value (:surname p)
+                :id (str (:id p) "-surname")}]]
+  [:td [:input {:type "text"
+                :value (:birthdate p)
+                :id (str (:id p) "-birthdate")}]]
+  [:td [:input {:type "text"
+                :value (:address p)
+                :id (str (:id p) "-address")}]]
+  [:td [:input {:type "text"
+                :value (:policy p)
+                :id (str (:id p) "-policy")}]]
+  [:td [:select {:name "gender"
+                 :id "gender"
+                 :value (:gender p)}
+        [:option {:value "f"} "ж"]
+        [:option {:value "m"} "м"]]]
+  [:td [:input {:type "button"
+                :value "Пошёл страус!"
+                :on-click #(PUT (str "/patients/" (:id p) "/")
+                                {:format :json
+                                 :handler fetch-patients
+                                 :params {:name (:value (js/document.getElementById (str (:id p) "-name")))}})}]])
+
+(defn edit-patient-button [p]
+  [:input {:type "button"
+           :value "Поправить"
+           :on-click #(reagent.dom/render
+                       (edit-patient-form p)
+                       (js/document.getElementById (str (:id p))))}])
+
 (defn delete-patient-button [p]
   [:input {:type "button"
            :value "Этот не нужен"
            :on-click #(DELETE (str "/patients/" (:id p) "/")
-                              {:handler fetch-patients})}
-           ]
-  )
-(defn patient-row [p]
-  [:tr [:td (str (:id p))] [:td (:name p)] [:td (:surname p)] [:td (delete-patient-button p)]])
-  
+                              {:handler fetch-patients})}])
 
+(defn patient-row [p]
+  [:tr {:id (str (:id p))}
+   [:td (str (:id p))]
+   [:td (:name p)]
+   [:td (:surname p)]
+   ;; [:td (edit-patient-button p)]
+   [:td (delete-patient-button p)]])
 
 (defn data-table []
-  (into
-   [:table [:tr [:th "ID"] [:th "Имя"] [:th "Фамилия"]]]
-   (map patient-row @patients)))
+  [:table
+   (into
+    [:tbody
+     [:tr [:th "ID"] [:th "Имя"] [:th "Фамилия"]]]
+    (map patient-row @patients))])
 
 (defn page-content []
   [:div
@@ -53,8 +95,7 @@
   [:h4 "Новый пациент"]
    [new-patient]
    [data-table]
-   [pager]
-   ])
+   [pager]])
 
 (defn change-page [page-num]
   #(GET "/patients/"
@@ -63,8 +104,7 @@
          :keywords? :true
          :params (into {:page page-num}
                        (filter (fn [p] (not (= (val p) "")))
-                               @search-params))})
-  )
+                               @search-params))}))
 
 (defn next-page []
   [:span {:on-click (change-page (+ 1 (:current @page)))}        
@@ -79,9 +119,7 @@
    [:span "Страница: "]
    (if (> (:current @page) 1) [prev-page])
    [:span (:current @page)]
-   (if (:has-next @page) [next-page])
-   ]
-  )
+   (if (:has-next @page) [next-page])])
 
 (defn handle-patient-added []
   (do
@@ -129,14 +167,14 @@
    [:label {:for "gender"} "Пол: "]
    [:select {:name "gender"
              :id "gender"
+             :value (:gender @search-params)
              :on-change #(reset! search-params (assoc @search-params :gender (-> % .-target .-value)) )}
-    [:option {:value "" :selected (= "" (:gender @search-params))} "Не важно"]
-    [:option {:value "f" :selected (= "f" (:gender @search-params))} "ж"]
-    [:option {:value "m":selected (= "m" (:gender @search-params)) } "м"]] 
+    [:option {:value ""} "Не важно"]
+    [:option {:value "f"} "ж"]
+    [:option {:value "m"} "м"]] 
    [:input {:type "button"
             :value "Пошёл страус!"
-            :on-click fetch-patients}]]
-  )
+            :on-click fetch-patients}]])
 
 (defn new-patient []
   [:form {:on-submit #(.preventDefault %)}

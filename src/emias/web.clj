@@ -3,6 +3,7 @@
             [compojure.route :refer [resources]]
             [emias.db :refer [filter-patients get-patient create-patient delete-patient update-patient default-limit]]
             [ring.middleware.params :as wp]
+            [ring.util.response :refer [resource-response]]
             [clojure.string :as string]
             [clojure.data.json :as json]
             [emias.validation :refer [validate-patient]]))
@@ -94,6 +95,7 @@
   (DELETE "/patients/:id/" [id] (del-patient id))
   (POST "/patients/" req (new-patient req))
   (PUT "/patients/:id/" [id :as r] (edit-patient id r))
-  (GET "/" [] index)
+  ;; (GET "/" [] index)
+  (GET "/" [] (resource-response "index.html" {:root "public"}))
   (resources "/") 
  )
