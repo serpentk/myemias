@@ -18,7 +18,7 @@
      :limit (+ 1 limit)}))
 
 (defn get-filters [params]
-  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender)]
+  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender :active)]
     (reduce #(if (params (name %2))
                (assoc %1 %2 (params (name %2)))
                %1) {} allowed)))

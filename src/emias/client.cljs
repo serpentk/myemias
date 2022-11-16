@@ -99,6 +99,7 @@
      [:td (:address p)]
      [:td (:policy p)]
      [:td (if (= (:gender p) "f") "ж" "м")]
+     [:td (if (:active p) "Активен" "Неактивен")]
      [:td (edit-patient-button p)]
      [:td (delete-patient-button p)]]))
 
@@ -106,7 +107,16 @@
   [:table
    (into
     [:tbody
-     [:tr [:th "ID"] [:th "Имя"] [:th "Фамилия"]]]
+     [:tr
+      [:th "ID"]
+      [:th "Имя"]
+      [:th "Отчество"]
+      [:th "Фамилия"]
+      [:th "Дата рождения"]
+      [:th "Адрес"]
+      [:th "Номер полиса"]
+      [:th "Пол"]
+      [:th "Статус"]]]
     (map patient-row (vals @patients)))])
 
 (defn page-content []
