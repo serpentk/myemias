@@ -17,6 +17,21 @@
 (defn validate-patient [patient]
   (let [gender-check (check-gender (patient :gender))
         birthdate-check (check-birthdate (patient :birthdate))]
+    (if (and (first gender-check)
+             (first birthdate-check)
+             (some? (patient :policy))
+             (some? (patient :addres))
+             (some? (patient :name))
+             (some? (patient :surname)))
+      [true nil]
+      [false (filter some? (map second [gender-check birthdate-check]))]
+    )))
+
+(defn validate-patient-edit [patient]
+  (let [gender (patient :gender)
+        birthdate (patient :birthdate)
+        gender-check (if (some? gender) (check-gender gender) [true nil])
+        birthdate-check (if (some? birthdate) (check-birthdate birthdate) [true nil])]
     (if (and (first gender-check) (first birthdate-check))
       [true nil]
       [false (filter some? (map second [gender-check birthdate-check]))]

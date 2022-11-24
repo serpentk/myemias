@@ -35,6 +35,12 @@
 (defn handle-edited [p]
   #(reset! patients (assoc @patients (:id p) (assoc p :processing false))))
 
+(defn handle-deleted [p]
+  #(reset! patients (assoc @patients (:id p) (assoc p :processing false :active false))))
+
+(defn handle-restored [p]
+  #(reset! patients (assoc @patients (:id p) (assoc p :processing false :active true))))
+
 (def edit-fields [:name :patronymic :surname :address :policy :gender :birthdate])
 
 (defn edit-patient-form [p]
@@ -81,11 +87,27 @@
            :value "Поправить"
            :on-click #(reset! patients (assoc @patients (:id p) (assoc p :processing true)))}])
 
+;; (defn delete-patient-button [p]
+;;   [:input {:type "button"
+;;            :value "Этот не нужен"
+;;            :on-click #(DELETE (str "/patients/" (:id p) "/")
+;;                               {:handler fetch-patients})}])
+
 (defn delete-patient-button [p]
   [:input {:type "button"
            :value "Этот не нужен"
-           :on-click #(DELETE (str "/patients/" (:id p) "/")
-                              {:handler fetch-patients})}])
+           :on-click #(PUT (str "/patients/" (:id p) "/")
+                           {:format :json
+                            :handler (handle-deleted p)
+                            :params {:active false}})}])
+
+(defn restore-patient-button [p]
+  [:input {:type "button"
+           :value "Воскресить"
+           :on-click #(PUT (str "/patients/" (:id p) "/")
+                           {:format :json
+                            :handler (handle-restored p)
+                            :params {:active true}})}])
 
 (defn patient-row [p]
   (if (:processing p)
@@ -101,7 +123,7 @@
      [:td (if (= (:gender p) "f") "ж" "м")]
      [:td (if (:active p) "Активен" "Неактивен")]
      [:td (edit-patient-button p)]
-     [:td (delete-patient-button p)]]))
+     [:td (if (:active p) (delete-patient-button p) (restore-patient-button p))]]))
 
 (defn data-table []
   [:table

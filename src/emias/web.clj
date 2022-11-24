@@ -6,7 +6,7 @@
             [ring.util.response :refer [resource-response]]
             [clojure.string :as string]
             [clojure.data.json :as json]
-            [emias.validation :refer [validate-patient]]))
+            [emias.validation :refer [validate-patient validate-patient-edit]]))
 
 (defn int-or-default [x default]
   (try (Integer/parseUnsignedInt x) (catch NumberFormatException _ default)))
@@ -69,7 +69,7 @@
 
 (defn edit-patient [id r]
   (let [data (json/read-json (slurp (:body r)))
-        validation (validate-patient data)]
+        validation (validate-patient-edit data)]
     (if (first validation)
       {:status 200
        :headers {"Content-Type" "application/json"}
