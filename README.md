@@ -20,8 +20,6 @@ FIXME: listing of options this app accepts.
 
 ...
 
-### Bugs
-- Fix timezone problem
 ### TODO
 - Make address json field (and add search by fields of this json)
 - Add client validation
