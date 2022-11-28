@@ -22,8 +22,11 @@
     (jdbc/update! pg-db :patients patient ["id=?" (:id patient)])
     patient))
 
+(defn prepare-patient [p]
+  (assoc p :birthdate (.format (new java.text.SimpleDateFormat "yyyy-MM-dd") (:birthdate p))))
+
 (defn get-patient [id]
-  (first (jdbc/query pg-db ["select * from patients where id=?" id])))
+  (prepare-patient (first (jdbc/query pg-db ["select * from patients where id=?" id]))))
 
 (defn get-filter-string [filters]
   (reduce #(format "%s and %s=?" %1 (name %2)) "where true" (keys filters))
@@ -41,11 +44,11 @@
 (defn filter-patients [filters &
                        {:keys [limits sorting]
                         :or {limits {:offset 0 :limit 10} sorting {:id :asc}}}]
-  (jdbc/query pg-db
+  (map prepare-patient (jdbc/query pg-db
               (conj
                (into [(format "select * from patients %s order by %s offset ? limit ?"
                               (get-filter-string filters)
                               (get-sorting sorting))]
                      (vals filters))
               (or (:offset limits) 0)
-              (or (:limit limits) default-limit))))
+              (or (:limit limits) default-limit)))))
