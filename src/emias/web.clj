@@ -17,11 +17,18 @@
     {:offset (* page-index limit)
      :limit (+ 1 limit)}))
 
+(defn prepare-location-field [f]
+  (format "location->>'%s'" f))
+
 (defn get-filters [params]
-  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender :active)]
-    (reduce #(if (params (name %2))
-               (assoc %1 %2 (params (name %2)))
-               %1) {} allowed)))
+  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender :active)
+        location-fields '(:index :region :city :street :house :building :flat)
+        simple-filters (reduce #(if (params (name %2)) (assoc %1 %2 (params (name %2))) %1)
+                               {}
+                               allowed)]
+    (reduce #(if (params (name %2)) (assoc %1 (prepare-location-field (name %2)) (params (name %2))) %1)
+            simple-filters
+            location-fields)))
 
 (def sort-fields (set [:id :surname :birthdate :policy]))
 

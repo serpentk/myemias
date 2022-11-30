@@ -23,7 +23,12 @@
     patient))
 
 (defn prepare-patient [p]
-  (assoc p :birthdate (.format (new java.text.SimpleDateFormat "yyyy-MM-dd") (:birthdate p))))
+  (let [location (:location p)]
+    (assoc p
+         :birthdate (.format (new java.text.SimpleDateFormat "yyyy-MM-dd") (:birthdate p))
+         :location  (if (nil? location)
+                      "{}"
+                      (.toString location)))))
 
 (defn get-patient [id]
   (prepare-patient (first (jdbc/query pg-db ["select * from patients where id=?" id]))))
