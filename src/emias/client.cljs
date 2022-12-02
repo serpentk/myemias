@@ -14,13 +14,13 @@
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
 
+(defn prepare-patients-dict [datalist]
+  (reduce #(assoc %1 (:id %2) (assoc (assoc %2 :processing false) :birthdate (subs (:birthdate %2) 0 10))) {} datalist))
+
 (defn reset-patients [data]
   (do
     (reset! patients (prepare-patients-dict (:result data)))
     (reset! page (:page data))))
-
-(defn prepare-patients-dict [datalist]
-  (reduce #(assoc %1 (:id %2) (assoc (assoc %2 :processing false) :birthdate (subs (:birthdate %2) 0 10))) {} datalist))
 
 (defn fetch-patients []
   (GET "/patients/"
@@ -109,6 +109,9 @@
                             :handler (handle-restored p)
                             :params {:active true}})}])
 
+(defn parse-patient-location [p]
+  (.parse js.JSON (or (:location p) "{}")))
+
 (defn patient-row [p]
   (if (:processing p)
     (edit-patient-form p)
@@ -119,6 +122,7 @@
      [:td (:surname p)]
      [:td (:birthdate p)]
      [:td (:address p)]
+     [:td (.-index (parse-patient-location p))]
      [:td (:policy p)]
      [:td (if (= (:gender p) "f") "ж" "м")]
      [:td (if (:active p) "Активен" "Неактивен")]
@@ -136,19 +140,11 @@
       [:th "Фамилия"]
       [:th "Дата рождения"]
       [:th "Адрес"]
+      [:th "Адрес подробнее"]
       [:th "Номер полиса"]
       [:th "Пол"]
       [:th "Статус"]]]
     (map patient-row (vals @patients)))])
-
-(defn page-content []
-  [:div
-  [:h4 "Поиск"]
-   [search-form]
-  [:h4 "Новый пациент"]
-   [new-patient]
-   [data-table]
-   [pager]])
 
 (defn change-page [page-num]
   #(GET "/patients/"
@@ -279,6 +275,15 @@
                              {:format :json
                               :handler handle-patient-added
                               :params @new-patient-data})}]])
+
+(defn page-content []
+  [:div
+  [:h4 "Поиск"]
+   [search-form]
+  [:h4 "Новый пациент"]
+   [new-patient]
+   [data-table]
+   [pager]])
 
 (reagent.dom/render
  [page-content]
