@@ -10,8 +10,16 @@
    :password "123456"
    :stringtype "unspecified"})
 
+(defn prepare-patient [p]
+  (let [location (:location p)]
+    (assoc p
+         :birthdate (.format (new java.text.SimpleDateFormat "yyyy-MM-dd") (:birthdate p))
+         :location  (if (nil? location)
+                      "{}"
+                      (.toString location)))))
+
 (defn create-patient [patient]
-  (first (jdbc/insert! pg-db :patients patient))
+  (prepare-patient (first (jdbc/insert! pg-db :patients patient)))
 )
 
 (defn delete-patient [id]
@@ -21,14 +29,6 @@
   (do
     (jdbc/update! pg-db :patients patient ["id=?" (:id patient)])
     patient))
-
-(defn prepare-patient [p]
-  (let [location (:location p)]
-    (assoc p
-         :birthdate (.format (new java.text.SimpleDateFormat "yyyy-MM-dd") (:birthdate p))
-         :location  (if (nil? location)
-                      "{}"
-                      (.toString location)))))
 
 (defn get-patient [id]
   (prepare-patient (first (jdbc/query pg-db ["select * from patients where id=?" id]))))

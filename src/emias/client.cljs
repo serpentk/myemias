@@ -41,10 +41,17 @@
 (defn handle-restored [p]
   #(reset! patients (assoc @patients (:id p) (assoc p :processing false :active true))))
 
-(def edit-fields [:name :patronymic :surname :address :policy :gender :birthdate])
+(defn parse-patient-location [p]
+  (.parse js.JSON (or (:location p) "{}")))
+
+(def edit-fields [:name :patronymic :surname :policy :gender :birthdate :location])
+
+(defn make-location-json [patient field value]
+  (.stringify js/JSON (clj->js (assoc (js->clj (parse-patient-location patient)) field value))))
 
 (defn edit-patient-form [p]
-  [:tr 
+  [:tr
+   [:td (:id p)]
    [:td [:input {:type "text"
                  :value (:name p)
                  :on-change #(reset! patients (assoc @patients (:id p) (assoc p :name (-> % .-target .-value))) )
@@ -61,10 +68,87 @@
                  :value (:birthdate p)
                  :on-change #(reset! patients (assoc @patients (:id p) (assoc p :birthdate (-> % .-target .-value))) )
                  :id (str (:id p) "-birthdate")}]]
-   [:td [:input {:type "text"
-                 :value (:address p)
-                 :on-change #(reset! patients (assoc @patients (:id p) (assoc p :address (-> % .-target .-value))) )
-                 :id (str (:id p) "-address")}]]
+   
+   [:td
+    [:div "Индекс: " [:input {:type "text"
+                              :value (.-index (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "index"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Регион: " [:input {:type "text"
+                              :value (.-region (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "region"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Город: " [:input {:type "text"
+                              :value (.-city (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "city"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Улица: " [:input {:type "text"
+                              :value (.-street (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "street"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Дом: " [:input {:type "text"
+                              :value (.-house (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "house"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Корпус: " [:input {:type "text"
+                              :value (.-building (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "building"
+                                                    (-> % .-target .-value)))))}]]
+    [:div "Квартира: " [:input {:type "text"
+                              :value (.-flat (parse-patient-location p))
+                              :on-change #(reset!
+                                           patients
+                                           (assoc @patients
+                                                  (:id p)
+                                                  (assoc
+                                                   p :location
+                                                   (make-location-json
+                                                    p "flat"
+                                                    (-> % .-target .-value)))))}]]
+    
+    ]
    [:td [:input {:type "text"
                  :value (:policy p)
                  :on-change #(reset! patients (assoc @patients (:id p) (assoc p :policy (-> % .-target .-value))) )
@@ -109,9 +193,6 @@
                             :handler (handle-restored p)
                             :params {:active true}})}])
 
-(defn parse-patient-location [p]
-  (.parse js.JSON (or (:location p) "{}")))
-
 (defn patient-row [p]
   (if (:processing p)
     (edit-patient-form p)
@@ -121,8 +202,14 @@
      [:td (:patronymic p)]
      [:td (:surname p)]
      [:td (:birthdate p)]
-     [:td (:address p)]
-     [:td (.-index (parse-patient-location p))]
+     [:td
+      [:div "Индекс: " (.-index (parse-patient-location p))]
+      [:div "Регион: " (.-region (parse-patient-location p))]
+      [:div "Нас. пункт: " (.-city (parse-patient-location p))]
+      [:div "Улица: " (.-street (parse-patient-location p))]
+      [:div "Дом: " (.-house (parse-patient-location p))]
+      [:div "Корпус/строение: " (.-building (parse-patient-location p))]
+      [:div "Квартира: " (.-flat (parse-patient-location p))]]
      [:td (:policy p)]
      [:td (if (= (:gender p) "f") "ж" "м")]
      [:td (if (:active p) "Активен" "Неактивен")]
@@ -140,7 +227,6 @@
       [:th "Фамилия"]
       [:th "Дата рождения"]
       [:th "Адрес"]
-      [:th "Адрес подробнее"]
       [:th "Номер полиса"]
       [:th "Пол"]
       [:th "Статус"]]]
@@ -177,104 +263,191 @@
 
 (defn search-form []
     [:form {:on-submit #(.preventDefault %)}
-   [:label {:for "name"} "Имя: "]
-   [:input {:type "text"
-            :id "name"
-            :name "name"
-            :value (:name @search-params)
-            :on-change #(reset! search-params (assoc @search-params :name (-> % .-target .-value)) )}]
-   [:label {:for "patronymic"} "Отчество: "]
-   [:input {:type "text"
-            :id "patronymic"
-            :name "patronymic"
-            :value (:patronymic @search-params)
-            :on-change #(reset! search-params (assoc @search-params :patronymic (-> % .-target .-value)) )}]
-   [:label {:for "surname"} "Фамилия: "]
-   [:input {:type "text"
-            :id "surname"
-            :name "surname"
-            :value (:surname @search-params)
-            :on-change #(reset! search-params (assoc @search-params :surname (-> % .-target .-value)) )}]
-   [:label {:for "birthdate"} "Дата рождения: "]
-   [:input {:type "text"
-            :id "birthdate"
-            :name "birthdate"
-            :value (:birthdate @search-params)
-            :on-change #(reset! search-params (assoc @search-params :birthdate (-> % .-target .-value)) )}]
-   [:label {:for "address"} "Адрес: "]
-   [:input {:type "text"
-            :id "address"
-            :name "address"
-            :value (:address @search-params)
-            :on-change #(reset! search-params (@assoc @search-params :address (-> % .-target .-value)) )}]
-   [:label {:for "policy"} "Полис: "]
-   [:input {:type "text"
-            :id "policy"
-            :name "policy"
-            :value (:policy @search-params)
-            :on-change #(reset! search-params (assoc @search-params :policy (-> % .-target .-value)) )}]
-   [:label {:for "gender"} "Пол: "]
-   [:select {:name "gender"
-             :id "gender"
-             :value (:gender @search-params)
-             :on-change #(reset! search-params (assoc @search-params :gender (-> % .-target .-value)) )}
-    [:option {:value ""} "Не важно"]
-    [:option {:value "f"} "ж"]
-    [:option {:value "m"} "м"]] 
-   [:input {:type "button"
-            :value "Пошёл страус!"
-            :on-click fetch-patients}]])
+     [:div [:label {:for "name"} "Имя: "]
+      [:input {:type "text"
+               :id "name"
+               :name "name"
+               :value (:name @search-params)
+               :on-change #(reset! search-params (assoc @search-params :name (-> % .-target .-value)) )}]]
+     [:div [:label {:for "patronymic"} "Отчество: "]
+      [:input {:type "text"
+               :id "patronymic"
+               :name "patronymic"
+               :value (:patronymic @search-params)
+               :on-change #(reset! search-params (assoc @search-params :patronymic (-> % .-target .-value)) )}]]
+     [:div [:label {:for "surname"} "Фамилия: "]
+      [:input {:type "text"
+               :id "surname"
+               :name "surname"
+               :value (:surname @search-params)
+               :on-change #(reset! search-params (assoc @search-params :surname (-> % .-target .-value)) )}]]
+     [:div [:label {:for "birthdate"} "Дата рождения: "]
+      [:input {:type "text"
+               :id "birthdate"
+               :name "birthdate"
+               :value (:birthdate @search-params)
+               :on-change #(reset! search-params (assoc @search-params :birthdate (-> % .-target .-value)) )}]]
+     [:div [:label {:for "index"} "Индекс: "]
+      [:input {:type "text"
+               :id "index"
+               :name "index"
+               :value (:index @search-params)
+               :on-change #(reset! search-params (assoc @search-params :index (-> % .-target .-value)))}]]
+     [:div [:label {:for "region"} "Регион: "]
+      [:input {:type "text"
+               :id "region"
+               :name "region"
+               :value (:region @search-params)
+               :on-change #(reset! search-params (assoc @search-params :region (-> % .-target .-value)) )}]]
+     [:div [:label {:for "city"} "Нас. пункт: "]
+      [:input {:type "text"
+               :id "city"
+               :name "city"
+               :value (:city @search-params)
+               :on-change #(reset! search-params (assoc @search-params :city (-> % .-target .-value)) )}]]
+     [:div [:label {:for "street"} "Улица: "]
+      [:input {:type "text"
+               :id "street"
+               :name "street"
+               :value (:street @search-params)
+               :on-change #(reset! search-params (assoc @search-params :street (-> % .-target .-value)) )}]]
+     [:div [:label {:for "house"} "Дом: "]
+      [:input {:type "text"
+               :id "house"
+               :name "house"
+               :value (:house @search-params)
+               :on-change #(reset! search-params (assoc @search-params :house (-> % .-target .-value)) )}]]
+     [:div [:label {:for "building"} "Корпус/строение: "]
+      [:input {:type "text"
+               :id "building"
+               :name "building"
+               :value (:building @search-params)
+               :on-change #(reset! search-params (assoc @search-params :building (-> % .-target .-value)) )}]]
+     [:div [:label {:for "flat"} "Квартира: "]
+      [:input {:type "text"
+               :id "flat"
+               :name "flat"
+               :value (:flat @search-params)
+               :on-change #(reset! search-params (assoc @search-params :flat (-> % .-target .-value)) )}]]
+     [:div [:label {:for "policy"} "Полис: "]
+      [:input {:type "text"
+               :id "policy"
+               :name "policy"
+               :value (:policy @search-params)
+               :on-change #(reset! search-params (assoc @search-params :policy (-> % .-target .-value)) )}]]
+     [:div [:label {:for "gender"} "Пол: "]
+      [:select {:name "gender"
+                :id "gender"
+                :value (:gender @search-params)
+                :on-change #(reset! search-params (assoc @search-params :gender (-> % .-target .-value)) )}
+       [:option {:value ""} "Не важно"]
+       [:option {:value "f"} "ж"]
+       [:option {:value "m"} "м"]]] 
+     [:div [:input {:type "button"
+                    :value "Пошёл страус!"
+                    :on-click fetch-patients}]]])
 
 (defn new-patient []
   [:form {:on-submit #(.preventDefault %)}
-   [:label {:for "name"} "Имя: "]
-   [:input {:type "text"
-            :id "name"
-            :name "name"
-            :value (:name @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :name (-> % .-target .-value)) )}]
-   [:label {:for "patronymic"} "Отчество: "]
-   [:input {:type "text"
-            :id "patronymic"
-            :name "patronymic"
-            :value (:patronymic @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :patronymic (-> % .-target .-value)) )}]
-   [:label {:for "surname"} "Фамилия: "]
-   [:input {:type "text"
-            :id "surname"
-            :name "surname"
-            :value (:surname @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :surname (-> % .-target .-value)) )}]
-   [:label {:for "birthdate"} "Дата рождения: "]
-   [:input {:type "text"
-            :id "birthdate"
-            :name "birthdate"
-            :value (:birthdate @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :birthdate (-> % .-target .-value)) )}]
-   [:label {:for "address"} "Адрес: "]
-   [:input {:type "text"
-            :id "address"
-            :name "address"
-            :value (:address @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :address (-> % .-target .-value)) )}]
-   [:label {:for "policy"} "Полис: "]
-   [:input {:type "text"
-            :id "policy"
-            :name "policy"
-            :value (:policy @new-patient-data)
-            :on-change #(reset! new-patient-data (assoc @new-patient-data :policy (-> % .-target .-value)) )}]
-   [:label {:for "gender"} "Пол: "]
-   [:select {:name "gender"
-             :id "gender"
-             :on-change #(reset! new-patient-data (assoc @new-patient-data :gender (-> % .-target .-value)) )}
-    [:option {:value "f"} "ж"]
-    [:option {:value "m"} "м"]] 
-   [:input {:type "button"
-            :value "Пошёл страус!"
-            :on-click #(POST "/patients/"
-                             {:format :json
-                              :handler handle-patient-added
-                              :params @new-patient-data})}]])
+   [:div [:label {:for "name"} "Имя: "]
+    [:input {:type "text"
+             :id "name"
+             :name "name"
+             :value (:name @new-patient-data)
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :name (-> % .-target .-value)) )}]]
+   [:div [:label {:for "patronymic"} "Отчество: "]
+    [:input {:type "text"
+             :id "patronymic"
+             :name "patronymic"
+             :value (:patronymic @new-patient-data)
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :patronymic (-> % .-target .-value)) )}]]
+   [:div [:label {:for "surname"} "Фамилия: "]
+    [:input {:type "text"
+             :id "surname"
+             :name "surname"
+             :value (:surname @new-patient-data)
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :surname (-> % .-target .-value)) )}]]
+   [:div [:label {:for "birthdate"} "Дата рождения: "]
+    [:input {:type "text"
+             :id "birthdate"
+             :name "birthdate"
+             :value (:birthdate @new-patient-data)
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :birthdate (-> % .-target .-value)) )}]]
+   [:div [:label {:for "index"} "Индекс: "]
+    [:input {:type "text"
+             :value (.-index (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                          (assoc
+                           @new-patient-data
+                           ;:index (-> % .-target .-value)
+                           :location
+                           (make-location-json @new-patient-data "index" (-> % .-target .-value))))}]]
+   [:div [:label {:for "region"} "Регион: "]
+    [:input {:type "text"
+             :value (.-region (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "region" (-> % .-target .-value))))}]]
+   [:div [:label {:for "city"} "Город: "]
+    [:input {:type "text"
+             :value (.-city (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc                               
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "city" (-> % .-target .-value))))}]]
+   [:div [:label {:for "street"} "Улица: "]
+    [:input {:type "text"
+             :value (.-street (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc                               
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "street" (-> % .-target .-value))))}]]
+   [:div [:label {:for "house"} "Дом: "]
+    [:input {:type "text"
+             :value (.-house (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc                               
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "house" (-> % .-target .-value))))}]]
+   [:div [:label {:for "building"} "Корпус/строение: "]
+    [:input {:type "text"
+             :value (.-building (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc                               
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "building" (-> % .-target .-value))))}]]
+   [:div [:label {:for "flat"} "Квартира: "]
+    [:input {:type "text"
+             :value (.-flat (parse-patient-location @new-patient-data))
+             :on-change #(reset! new-patient-data
+                                 (assoc                               
+                                  @new-patient-data
+                                  :location
+                                  (make-location-json @new-patient-data "flat" (-> % .-target .-value))))}]]
+   [:div [:label {:for "policy"} "Полис: "]
+    [:input {:type "text"
+             :id "policy"
+             :name "policy"
+             :value (:policy @new-patient-data)
+             :on-change #(reset! new-patient-data (assoc @new-patient-data :policy (-> % .-target .-value)) )}]]
+   [:div [:label {:for "gender"} "Пол: "]
+    [:select {:name "gender"
+              :id "gender"
+              :on-change #(reset! new-patient-data (assoc @new-patient-data :gender (-> % .-target .-value)) )}
+     [:option {:value "f"} "ж"]
+     [:option {:value "m"} "м"]]] 
+   [:div [:input {:type "button"
+                 :value "Пошёл страус!"
+                 :on-click #(POST "/patients/"
+                                  {:format :json
+                                   :handler handle-patient-added
+                                   :params @new-patient-data})}]]])
 
 (defn page-content []
   [:div

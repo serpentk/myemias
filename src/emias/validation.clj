@@ -20,7 +20,6 @@
     (if (and (first gender-check)
              (first birthdate-check)
              (some? (patient :policy))
-             (some? (patient :addres))
              (some? (patient :name))
              (some? (patient :surname)))
       [true nil]
