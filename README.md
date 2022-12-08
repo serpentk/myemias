@@ -21,7 +21,6 @@ FIXME: listing of options this app accepts.
 ...
 
 ### TODO
-- Make address json field (and add search by fields of this json)
 - Add client validation
 - Add client error handling
 - Tests!!!
