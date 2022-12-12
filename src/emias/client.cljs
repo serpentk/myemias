@@ -159,6 +159,7 @@
                   :value (:gender p)}
          [:option {:value "f"} "ж"]
          [:option {:value "m"} "м"]]]
+   [:td (if (:active p) "Активен" "Неактивен")]
    [:td [:input {:type "button"
                  :class "button"
                  :value "Пошёл страус!"
