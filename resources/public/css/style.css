@@ -1,0 +1,75 @@
+@font-face {
+    font-family: "Roboto";
+    src: url(fonts/Roboto-Regular.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: "Roboto Bold";
+    src: url(fonts/Roboto-Regular.ttf) format("truetype");
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Roboto Bold", Arial, Helvetica, sans-serif;
+}
+
+th {
+    font-family: "Roboto Bold", Arial, Helvetica, sans-serif;
+}
+
+td {
+    font-family: "Roboto", Arial, Helvetica, sans-serif;
+}
+
+label {
+    font-family: "Roboto", Arial, Helvetica, sans-serif;
+}
+
+#inputforms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.formwrapper {
+    flex: 0 0 auto;
+    margin: 0.5em;
+    max-width: 48%;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+input {
+    flex: 0 1 calc(25%-1em); /* Промежуток в 1em между элементами */
+    margin: 0.5em;
+}
+
+.button {
+    border: none;
+    border-radius: 5px;
+    padding: 1em;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+th {
+ background-color:#ffffd5;
+ padding:1em
+}
+
+tr:nth-child(odd) {
+ background-color:#dcdcd6
+}
+
+td {
+ padding:0.5em
+}
+
+.pager {
+    font-family: "Roboto", Arial, Helvetica, sans-serif;
+}
