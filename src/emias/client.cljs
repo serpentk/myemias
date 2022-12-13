@@ -201,7 +201,7 @@
 (defn patient-row [p]
   (if (:processing p)
     (edit-patient-form p)
-    [:tr {:id (str (:id p)) :class (if (:odd p) "odd" "even")}
+    [:tr {:id (str (:id p))}
      [:td (str (:id p))]
      [:td (:name p)]
      [:td (:patronymic p)]
@@ -236,7 +236,7 @@
       [:th "Пол"]
       [:th "Статус"]
       [:th "Сделать что-нибудь"]]]
-    (map patient-row (map-indexed #(assoc %2 :odd (odd? %1)) (vals @patients))))])
+    (map patient-row (vals @patients)))])
 
 (defn change-page [page-num]
   #(GET "/patients/"
@@ -269,79 +269,92 @@
 
 (defn search-form []
   [:form {:id "search" :on-submit #(.preventDefault %)}
-   [:div [:label {:for "name"} "Имя: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "name"} "Имя: "]
     [:input {:type "text"
              :id "name"
              :name "name"
              :value (:name @search-params)
              :on-change #(reset! search-params (assoc @search-params :name (-> % .-target .-value)) )}]]
-   [:div [:label {:for "patronymic"} "Отчество: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "patronymic"} "Отчество: "]
     [:input {:type "text"
              :id "patronymic"
              :name "patronymic"
              :value (:patronymic @search-params)
              :on-change #(reset! search-params (assoc @search-params :patronymic (-> % .-target .-value)) )}]]
-   [:div [:label {:for "surname"} "Фамилия: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "surname"} "Фамилия: "]
     [:input {:type "text"
              :id "surname"
              :name "surname"
              :value (:surname @search-params)
              :on-change #(reset! search-params (assoc @search-params :surname (-> % .-target .-value)) )}]]
-   [:div [:label {:for "birthdate"} "Дата рождения: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "birthdate"} "Дата рождения: "]
     [:input {:type "text"
              :id "birthdate"
              :name "birthdate"
              :value (:birthdate @search-params)
              :on-change #(reset! search-params (assoc @search-params :birthdate (-> % .-target .-value)) )}]]
-   [:div [:label {:for "index"} "Индекс: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "index"} "Индекс: "]
     [:input {:type "text"
              :id "index"
              :name "index"
              :value (:index @search-params)
              :on-change #(reset! search-params (assoc @search-params :index (-> % .-target .-value)))}]]
-   [:div [:label {:for "region"} "Регион: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "region"} "Регион: "]
     [:input {:type "text"
              :id "region"
              :name "region"
              :value (:region @search-params)
              :on-change #(reset! search-params (assoc @search-params :region (-> % .-target .-value)) )}]]
-   [:div [:label {:for "city"} "Нас. пункт: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "city"} "Нас. пункт: "]
     [:input {:type "text"
              :id "city"
              :name "city"
              :value (:city @search-params)
              :on-change #(reset! search-params (assoc @search-params :city (-> % .-target .-value)) )}]]
-   [:div [:label {:for "street"} "Улица: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "street"} "Улица: "]
     [:input {:type "text"
              :id "street"
              :name "street"
              :value (:street @search-params)
              :on-change #(reset! search-params (assoc @search-params :street (-> % .-target .-value)) )}]]
-   [:div [:label {:for "house"} "Дом: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "house"} "Дом: "]
     [:input {:type "text"
              :id "house"
              :name "house"
              :value (:house @search-params)
              :on-change #(reset! search-params (assoc @search-params :house (-> % .-target .-value)) )}]]
-   [:div [:label {:for "building"} "Корпус/строение: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "building"} "Корпус/строение: "]
     [:input {:type "text"
              :id "building"
              :name "building"
              :value (:building @search-params)
              :on-change #(reset! search-params (assoc @search-params :building (-> % .-target .-value)) )}]]
-   [:div [:label {:for "flat"} "Квартира: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "flat"} "Квартира: "]
     [:input {:type "text"
              :id "flat"
              :name "flat"
              :value (:flat @search-params)
              :on-change #(reset! search-params (assoc @search-params :flat (-> % .-target .-value)) )}]]
-   [:div [:label {:for "policy"} "Полис: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "policy"} "Полис: "]
     [:input {:type "text"
              :id "policy"
              :name "policy"
              :value (:policy @search-params)
              :on-change #(reset! search-params (assoc @search-params :policy (-> % .-target .-value)) )}]]
-   [:div [:label {:for "gender"} "Пол: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "gender"} "Пол: "]
     [:select {:name "gender"
               :id "gender"
               :value (:gender @search-params)
@@ -357,31 +370,36 @@
 
 (defn new-patient []
   [:form {:on-submit #(.preventDefault %)}
-   [:div [:label {:for "name"} "Имя: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "name"} "Имя: "]
     [:input {:type "text"
              :id "name"
              :name "name"
              :value (:name @new-patient-data)
              :on-change #(reset! new-patient-data (assoc @new-patient-data :name (-> % .-target .-value)) )}]]
-   [:div [:label {:for "patronymic"} "Отчество: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "patronymic"} "Отчество: "]
     [:input {:type "text"
              :id "patronymic"
              :name "patronymic"
              :value (:patronymic @new-patient-data)
              :on-change #(reset! new-patient-data (assoc @new-patient-data :patronymic (-> % .-target .-value)) )}]]
-   [:div [:label {:for "surname"} "Фамилия: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "surname"} "Фамилия: "]
     [:input {:type "text"
              :id "surname"
              :name "surname"
              :value (:surname @new-patient-data)
              :on-change #(reset! new-patient-data (assoc @new-patient-data :surname (-> % .-target .-value)) )}]]
-   [:div [:label {:for "birthdate"} "Дата рождения: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "birthdate"} "Дата рождения: "]
     [:input {:type "text"
              :id "birthdate"
              :name "birthdate"
              :value (:birthdate @new-patient-data)
              :on-change #(reset! new-patient-data (assoc @new-patient-data :birthdate (-> % .-target .-value)) )}]]
-   [:div [:label {:for "index"} "Индекс: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "index"} "Индекс: "]
     [:input {:type "text"
              :value (.-index (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -390,7 +408,8 @@
                                         ;:index (-> % .-target .-value)
                                   :location
                                   (make-location-json @new-patient-data "index" (-> % .-target .-value))))}]]
-   [:div [:label {:for "region"} "Регион: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "region"} "Регион: "]
     [:input {:type "text"
              :value (.-region (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -398,7 +417,8 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "region" (-> % .-target .-value))))}]]
-   [:div [:label {:for "city"} "Город: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "city"} "Город: "]
     [:input {:type "text"
              :value (.-city (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -406,7 +426,8 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "city" (-> % .-target .-value))))}]]
-   [:div [:label {:for "street"} "Улица: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "street"} "Улица: "]
     [:input {:type "text"
              :value (.-street (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -414,7 +435,8 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "street" (-> % .-target .-value))))}]]
-   [:div [:label {:for "house"} "Дом: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "house"} "Дом: "]
     [:input {:type "text"
              :value (.-house (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -422,7 +444,8 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "house" (-> % .-target .-value))))}]]
-   [:div [:label {:for "building"} "Корпус/строение: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "building"} "Корпус/строение: "]
     [:input {:type "text"
              :value (.-building (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -430,7 +453,8 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "building" (-> % .-target .-value))))}]]
-   [:div [:label {:for "flat"} "Квартира: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "flat"} "Квартира: "]
     [:input {:type "text"
              :value (.-flat (parse-patient-location @new-patient-data))
              :on-change #(reset! new-patient-data
@@ -438,13 +462,15 @@
                                   @new-patient-data
                                   :location
                                   (make-location-json @new-patient-data "flat" (-> % .-target .-value))))}]]
-   [:div [:label {:for "policy"} "Полис: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "policy"} "Полис: "]
     [:input {:type "text"
              :id "policy"
              :name "policy"
              :value (:policy @new-patient-data)
              :on-change #(reset! new-patient-data (assoc @new-patient-data :policy (-> % .-target .-value)) )}]]
-   [:div [:label {:for "gender"} "Пол: "]
+   [:div {:class "textwrapper"}
+    [:label {:for "gender"} "Пол: "]
     [:select {:name "gender"
               :id "gender"
               :on-change #(reset! new-patient-data (assoc @new-patient-data :gender (-> % .-target .-value)) )}
@@ -468,7 +494,8 @@
     [:div {:class "formwrapper" }
      [:h2 "Новый пациент"]
      [new-patient]]]
-   [data-table]
+   [:div {:id "tablecontainer"}
+    [data-table]]
    [pager]])
 
 (reagent.dom/render

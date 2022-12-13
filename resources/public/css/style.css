@@ -1,23 +1,20 @@
 @font-face {
     font-family: "Roboto";
-    src: url(fonts/Roboto-Regular.ttf) format("truetype");
+    src: url(../fonts/Roboto-Regular.ttf) format("truetype");
 }
 
 @font-face {
     font-family: "Roboto Bold";
-    src: url(fonts/Roboto-Regular.ttf) format("truetype");
+    src: url(../fonts/Roboto-Regular.ttf) format("truetype");
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: "Roboto Bold", Arial, Helvetica, sans-serif;
+    color: #100099;
 }
 
 th {
     font-family: "Roboto Bold", Arial, Helvetica, sans-serif;
-}
-
-td {
-    font-family: "Roboto", Arial, Helvetica, sans-serif;
 }
 
 label {
@@ -33,43 +30,83 @@ label {
 .formwrapper {
     flex: 0 0 auto;
     margin: 0.5em;
-    max-width: 48%;
+    width: 48%;
+    justify-content: flex-end;
 }
 
 form {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
+}
+
+.textwrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5em;
+}
+
+.textwrapper > label {
+    width: 10em;
+    justify-content: flex-end;
+    padding-right: 0px;
 }
 
 input {
-    flex: 0 1 calc(25%-1em); /* Промежуток в 1em между элементами */
-    margin: 0.5em;
+  flex: 0 1 calc(25%-1em);
 }
 
 .button {
     border: none;
     border-radius: 5px;
     padding: 1em;
+    margin: 1px;
 }
 
 .spacer {
     flex-grow: 1;
 }
 
+@font-face {
+    font-family: "Roboto";
+    src: url(Roboto-Regular.ttf) format("truetype");
+}
+
+@font-face {
+    font-family: "Roboto Bold";
+    src: url(Roboto-Regular.ttf) format("truetype");
+}
+
+#tablecontainer{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: auto;
+}
+
+table {
+    width: 95%;
+}
+
+th, td {
+    padding: 0.5em;
+    text-align: left;
+}
+
 th {
- background-color:#ffffd5;
- padding:1em
+    border-bottom: 1px solid #000033;
+    background-color: #eeeeff;
 }
 
-tr:nth-child(odd) {
- background-color:#dcdcd6
-}
-
-td {
- padding:0.5em
-}
-
-.pager {
+tr {
     font-family: "Roboto", Arial, Helvetica, sans-serif;
+}
+
+tr:nth-child(even) {
+    background-color: #eeeeee;
+}
+
+tr:hover {
+    background-color: #aaaaff;
 }
