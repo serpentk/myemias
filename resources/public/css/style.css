@@ -5,7 +5,7 @@
 
 @font-face {
     font-family: "Roboto Bold";
-    src: url(../fonts/Roboto-Regular.ttf) format("truetype");
+    src: url(../fonts/Roboto-Bold.ttf) format("truetype");
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -68,16 +68,6 @@ input {
     flex-grow: 1;
 }
 
-@font-face {
-    font-family: "Roboto";
-    src: url(Roboto-Regular.ttf) format("truetype");
-}
-
-@font-face {
-    font-family: "Roboto Bold";
-    src: url(Roboto-Regular.ttf) format("truetype");
-}
-
 #tablecontainer{
     display: flex;
     justify-content: center;
@@ -110,3 +100,8 @@ tr:nth-child(even) {
 tr:hover {
     background-color: #aaaaff;
 }
+
+.pager {
+    font-family: "Roboto", Arial, Helvetica, sans-serif;
+}
+

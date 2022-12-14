@@ -14,13 +14,27 @@
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
 
+(defn prepare-patient [p]
+  (assoc p :processing false :birthdate (subs (:birthdate p) 0 10)))
+
 (defn prepare-patients-dict [datalist]
-  (reduce #(assoc %1 (:id %2) (assoc (assoc %2 :processing false) :birthdate (subs (:birthdate %2) 0 10))) {} datalist))
+  (reduce #(assoc %1 (:id %2) (prepare-patient %2)) {} datalist))
+
+(defn reset-patient [patient-data]
+  (reset! patients (assoc @patients (:id patient-data) (prepare-patient patient-data)))
+  )
 
 (defn reset-patients [data]
   (do
     (reset! patients (prepare-patients-dict (:result data)))
     (reset! page (:page data))))
+
+(defn fetch-patient [id]
+  #(GET (str "/patients/" id "/")
+             {:response-format :json
+              :handler reset-patient
+              :keywords? :true
+              }))
 
 (defn fetch-patients []
   (GET "/patients/"
@@ -160,13 +174,20 @@
          [:option {:value "f"} "ж"]
          [:option {:value "m"} "м"]]]
    [:td (if (:active p) "Активен" "Неактивен")]
-   [:td [:input {:type "button"
-                 :class "button"
-                 :value "Пошёл страус!"
-                 :on-click #(PUT (str "/patients/" (:id p) "/")
-                                 {:format :json
-                                  :handler (handle-edited p)
-                                  :params (select-keys (get @patients (:id p)) edit-fields) })}]]])
+   [:td
+    [:input {:type "button"
+             :class "button"
+             :value "Пошёл страус!"
+             :on-click #(PUT (str "/patients/" (:id p) "/")
+                             {:format :json
+                              :handler (handle-edited p)
+                              :params (select-keys (get @patients (:id p)) edit-fields) })}]
+    [:input {:type "button"
+             :class "button"
+             :value "Отмена"
+             :on-click #(GET (str "/patients/" (:id p) "/")
+                             {:format :json
+                              :handler (fetch-patient (:id p))})}]]])
 
 (defn edit-patient-button [p]
   [:input {:type "button"
@@ -248,12 +269,16 @@
                                @search-params))}))
 
 (defn next-page []
-  [:span {:on-click (change-page (+ 1 (:current @page)))}        
-          " >"])
+  [:input {:type "button"
+           :class "button"
+           :value ">"
+           :on-click (change-page (+ 1 (:current @page)))}])
 
 (defn prev-page []
-  [:span {:on-click (change-page (- (:current @page) 1))}        
-          "< "])
+  [:input {:type "button"
+           :class "button"
+           :value "<"
+           :on-click (change-page (- (:current @page) 1))}])
 
 (defn pager []
   [:div {:class "pager"}
