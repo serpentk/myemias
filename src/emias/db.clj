@@ -1,14 +1,9 @@
 (ns emias.db
   (:require
-    [clojure.java.jdbc :as jdbc]))
+   [clojure.java.jdbc :as jdbc]
+   [emias.config :refer [db-config]]))
 
-(def pg-db
-  {:dbtype "postgresql"
-   :dbname "emias"
-   :host "localhost"
-   :user "emias"
-   :password "123456"
-   :stringtype "unspecified"})
+(def pg-db @db-config)
 
 (defn prepare-patient [p]
   (let [location (:location p)]
