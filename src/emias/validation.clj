@@ -9,9 +9,8 @@
 
 (defn check-birthdate [birthdate]
   (try
-    (do
-      (jt/local-date "yyyy-MM-dd" birthdate)
-      [true nil])
+    (let [parsed (jt/local-date "yyyy-MM-dd" birthdate)]
+      (if (= (str parsed) birthdate) [true nil] [false "Wrong day of month"]))
     (catch Exception e [false "Wrong birthdate format"])))
 
 (defn validate-patient [patient]
