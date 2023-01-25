@@ -6,10 +6,13 @@
 
 (use-fixtures :once db-test-fixture db-table-fixture)
 
+(deftest test-main
+  (testing "Main page"
+    (is (= 200 (:status (sut/app {:uri "/" :request-method :get}))))))
+
 (deftest test-api
   (testing "Test api"
-    (let [response (sut/app {:compojure/route [:get "/patients/"]
-                             :uri "/patients/"
+    (let [response (sut/app {:uri "/patients/"
                              :request-method :get})]
       (is (= (:status response) 200))
       (is (= (json/read-json (:body response))
