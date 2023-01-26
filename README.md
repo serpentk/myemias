@@ -23,7 +23,6 @@ FIXME: listing of options this app accepts.
 ### TODO
 - Add client validation
 - Add client error handling
-- Tests!!!
 
 ### Any Other Sections
 ### That You Think
