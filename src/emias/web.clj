@@ -98,10 +98,10 @@
 
 (defroutes app
   (GET "/patients/" req ((wp/wrap-params patients) req))
-  (GET "/patients/:id/" [id] (get-patient-info id))
-  (DELETE "/patients/:id/" [id] (del-patient id))
+  (GET "/patients/:id{\\d+}/" [id] (get-patient-info id))
+  (DELETE "/patients/:id{\\d+}/" [id] (del-patient id))
   (POST "/patients/" req (new-patient req))
-  (PUT "/patients/:id/" [id :as r] (edit-patient id r))
+  (PUT "/patients/:id{\\d+}/" [id :as r] (edit-patient id r))
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (resources "/") 
  )

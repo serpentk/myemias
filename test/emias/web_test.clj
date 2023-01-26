@@ -11,13 +11,22 @@
   (testing "Main page"
     (is (= 200 (:status (sut/app {:uri "/" :request-method :get}))))))
 
-(deftest test-get
+(deftest test-get-empty
   (testing "Get empty list"
     (let [response (sut/app {:uri "/patients/"
                              :request-method :get})]
       (is (= (:status response) 200))
       (is (= (json/read-json (:body response))
-             {:page {:current 1 :has-next false} :result []})))))
+             {:page {:current 1 :has-next false} :result []}))))
+  (testing "Get non-existing patient info"
+    (let [response (sut/app {:uri "/patients/100500/"
+                             :request-method :get})]
+      (is (= 404 (:status response)))
+      (is (= (json/read-json (:body response))
+             {:error "Patient not found"}))))
+  (testing "Get bad id"
+    (is (= 404 (:status (sut/app {:uri "/patients/100500/"
+                                  :request-method :get}))))))
 
 (deftest test-create-delete
   (testing "Life cycle"
