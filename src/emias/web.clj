@@ -59,9 +59,14 @@
                             :result (into [] (take (- (:limit limits) 1) data))})}))
 
 (defn get-patient-info [id]
-  {:status 200
-   :headers {"Content-Type" "application/json"}
-   :body (json/write-str (get-patient id))})
+  (let [patient (get-patient id)]
+    (if (some? patient)
+      {:status 200
+       :headers {"Content-Type" "application/json"}
+       :body (json/write-str (get-patient id))}
+      {:status 404
+       :headers {"Content-Type" "application/json"}
+       :body (json/write-str {:error "Patient not found"})})))
 
 (defn new-patient [req]
   (let [data (json/read-json (slurp (:body req)))

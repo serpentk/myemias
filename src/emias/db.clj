@@ -44,7 +44,9 @@
     patient))
 
 (defn get-patient [id]
-  (prepare-patient (first (jdbc/query @db-config ["select * from patients where id=?" id]))))
+  (let [patient (first (jdbc/query @db-config ["select * from patients where id=?" id]))]
+    (if (some? patient)
+      (prepare-patient patient) nil)))
 
 (defn get-filter-string [filters]
   (reduce #(format "%s and %s=?" %1 (name %2)) "where true" (keys filters))

@@ -1,5 +1,6 @@
 (ns emias.web-test
   (:require [emias.web :as sut]
+            [emias.db :as db]
             [emias.fixtures :refer [db-test-fixture db-table-fixture patient-data]]
             [clojure.data.json :as json]
             [clojure.test :refer :all]))
@@ -18,11 +19,18 @@
       (is (= (json/read-json (:body response))
              {:page {:current 1 :has-next false} :result []})))))
 
-(deftest test-create
-  (testing "Add patient"
-    (let [response (sut/app {:uri "/patients/"
-                             :request-method :post
-                             :headers {"Content-Type" "application/json"}
-                             :body (.getBytes (json/write-str patient-data))})]
-      (is (= 201 (:status response))))))
-
+(deftest test-create-delete
+  (testing "Life cycle"
+    (let [create-response (sut/app {:uri "/patients/"
+                                    :request-method :post
+                                    :headers {"Content-Type" "application/json"}
+                                    :body (.getBytes (json/write-str patient-data))})
+          created-data (json/read-json (:body create-response))
+          id (:id created-data)
+          delete-response (sut/app {:uri (str "/patients/" id "/")
+                                    :request-method :delete})]
+      (is (= 201 (:status create-response)))
+      (is (= 204 (:status delete-response)))
+      (is (= 404 (:status (sut/app {:uri (str "/patients/" id "/")
+                                    :request-method :get}))))
+      (is (nil? (db/get-patient id))))))
