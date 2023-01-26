@@ -28,7 +28,7 @@
     (is (= 404 (:status (sut/app {:uri "/patients/100500/"
                                   :request-method :get}))))))
 
-(deftest test-create-delete
+(deftest test-create-edit-delete
   (testing "Life cycle"
     (let [create-response (sut/app {:uri "/patients/"
                                     :request-method :post
@@ -36,8 +36,17 @@
                                     :body (.getBytes (json/write-str patient-data))})
           created-data (json/read-json (:body create-response))
           id (:id created-data)
+          edit-response (sut/app {:uri (str "/patients/" id "/")
+                                  :request-method :put
+                                  :headers {"Content-Type" "application/json"}
+                                  :body (.getBytes
+                                         (json/write-str
+                                          (assoc
+                                           patient-data
+                                           :location (json/write-str {:index "123456"}))))})
           delete-response (sut/app {:uri (str "/patients/" id "/")
                                     :request-method :delete})]
+      (is (= 200 (:status edit-response)))
       (is (= 201 (:status create-response)))
       (is (= 204 (:status delete-response)))
       (is (= 404 (:status (sut/app {:uri (str "/patients/" id "/")
