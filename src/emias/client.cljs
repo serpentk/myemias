@@ -5,7 +5,7 @@
 
 (def patients (reagent.core/atom []))
 
-(def new-patient-data (reagent.core/atom {:gender "f"}))
+(def new-patient-data (reagent.core/atom {:gender "f" :active true}))
 
 (def search-params (reagent.core/atom {:gender ""}))
 
@@ -23,6 +23,29 @@
 (defn reset-patient [patient-data]
   (reset! patients (assoc @patients (:id patient-data) (prepare-patient patient-data)))
   )
+
+(defn check-patient [patient]
+  (let [check-result {:birthdate (if (clojure.string/blank? (patient :birthdate)) ;; TODO validate format
+                              [false "Дата рождения обязательна"]
+                              [true nil])
+                      :name (if (clojure.string/blank? (patient :name))
+                              [false "Имя обязательно"]
+                              [true nil])
+                      :surname (if (clojure.string/blank? (patient :surname))
+                                 [false "Фамилия обязательна"]
+                                 [true nil])
+                      :policy (if (clojure.string/blank? (patient :policy))
+                                [false "Номер полиса обязателен"]
+                                [true nil])
+                      }
+        errors (filter
+                #(not (first (second %)))
+                check-result)
+        ] 
+    (if (empty? errors)
+      [true nil]
+      [false (into {}
+                   (map #(vector (first %) (second (second %))) errors))])))
 
 (defn reset-patients [data]
   (do
@@ -179,6 +202,7 @@
     [:input {:type "button"
              :class "button"
              :value "Пошёл страус!"
+             :disabled (not (first (check-patient p)))
              :on-click #(PUT (str "/patients/" (:id p) "/")
                              {:format :json
                               :handler (handle-edited p)
@@ -505,6 +529,7 @@
    [:div [:input {:type "button"
                   :class "button"
                   :value "Пошёл страус!"
+                  :disabled (not (first (check-patient @new-patient-data)))
                   :on-click #(POST "/patients/"
                                    {:format :json
                                     :handler handle-patient-added
