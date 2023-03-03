@@ -20,6 +20,7 @@
              (first birthdate-check)
              (some? (patient :policy))
              (some? (patient :name))
+             (some? (patient :active))
              (some? (patient :surname)))
       [true nil]
       [false (filter some? (map second [gender-check birthdate-check]))]

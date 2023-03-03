@@ -22,6 +22,7 @@
     (is (= (validate-patient (assoc patient-data :gender "nothing"))
            [false '("Gender must be 'f' or 'm'")]))
     (is (= (validate-patient (dissoc patient-data :policy)) [false '()]))
+    (is (= (validate-patient (dissoc patient-data :active)) [false '()]))
     (is (= (validate-patient (dissoc patient-data :name)) [false '()]))
     (is (= (validate-patient (dissoc patient-data :surname)) [false '()])))
   (testing "Edit patient"
