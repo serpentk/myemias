@@ -29,7 +29,7 @@
                    :cljsbuild {:builds [{:id "dev"
                                          :source-paths ["src" "dev"]
                                          :figwheel true
-                                         :compiler {:main emias.client
+                                         :compiler {:main emias.client.main
                                                     :asset-path "out"
                                                     :output-to "target/default/classes/public/app.js"
                                                     :output-dir "target/default/classes/public/out"
