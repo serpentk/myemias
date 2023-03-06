@@ -5,7 +5,7 @@
             [clojure.data.json :as json]
             [clojure.test :refer :all]))
 
-(use-fixtures :once db-test-fixture db-table-fixture)
+(use-fixtures :each db-test-fixture db-table-fixture)
 
 (deftest test-main
   (testing "Main page"
@@ -52,3 +52,33 @@
       (is (= 404 (:status (sut/app {:uri (str "/patients/" id "/")
                                     :request-method :get}))))
       (is (nil? (db/get-patient id))))))
+
+(deftest test-duplicate-policy
+  (testing "Test policy uniqueness"
+    (let [created (sut/app {:uri "/patients/"
+                            :request-method :post
+                            :headers {"Content-Type" "application/json"}
+                            :body (.getBytes (json/write-str patient-data))})
+          created-data (json/read-json (:body created))
+          id (:id created-data)
+          created-another (sut/app {:uri "/patients/"
+                                    :request-method :post
+                                    :headers {"Content-Type" "application/json"}
+                                    :body (.getBytes
+                                           (json/write-str
+                                            (assoc patient-data :policy "007")))})
+          not-created-again (sut/app {:uri "/patients/"
+                                      :request-method :post
+                                      :headers {"Content-Type" "application/json"}
+                                      :body (.getBytes (json/write-str patient-data))})
+          conflict-editing (sut/app {:uri (str "/patients/" id "/")
+                                     :request-method :put
+                                     :headers {"Content-Type" "application/json"}
+                                     :body (.getBytes
+                                            (json/write-str
+                                             {:policy "007"}))})]
+      (is (= 201 (:status created)))
+      (is (= 201 (:status created-another)))
+      (is (= 409 (:status not-created-again)))
+      (is (= 409 (:status conflict-editing)))
+      (is (= 2 (count (db/filter-patients {})))))))

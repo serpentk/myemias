@@ -72,9 +72,14 @@
   (let [data (json/read-json (slurp (:body req)))
         validation (validate-patient data)]
     (if (first validation)
-      {:status 201
-       :headers {"Content-Type" "application/json"}
-       :body (json/write-str (create-patient data))}
+      (try
+        {:status 201
+         :headers {"Content-Type" "application/json"}
+         :body (json/write-str (create-patient data))}
+        (catch Exception e ; TODO: manage different Exceptions
+          {:status 409
+           :headers {"Content-Type" "application/json"}
+           :body (json/write-str {:error "Duplicate policy number"})}))
       {:status 400
        :headers {"Content-Type" "application/json"}
        :body (json/write-str {:error (second validation)})})))
@@ -83,9 +88,14 @@
   (let [data (json/read-json (slurp (:body r)))
         validation (validate-patient-edit data)]
     (if (first validation)
-      {:status 200
-       :headers {"Content-Type" "application/json"}
-       :body (json/write-str (update-patient (assoc data :id id)))}
+      (try
+        {:status 200
+         :headers {"Content-Type" "application/json"}
+         :body (json/write-str (update-patient (assoc data :id id)))}
+        (catch Exception e ; TODO: manage different Exceptions
+          {:status 409
+           :headers {"Content-Type" "application/json"}
+           :body (json/write-str {:error "Duplicate policy number"})}))
       {:status 400
        :headers {"Content-Type" "application/json"}
        :body (json/write-str {:error (second validation)})})))
