@@ -3,9 +3,11 @@
             [ajax.core :refer [GET]]))
 
 (defn check-patient [patient]
-  (let [check-result {:birthdate (if (clojure.string/blank? (patient :birthdate)) ;; TODO validate format
-                              [false "Дата рождения обязательна"]
-                              [true nil])
+  (let [check-result {:birthdate (if (clojure.string/blank? (patient :birthdate))
+                                   [false "Дата рождения обязательна"]
+                                   (if (js/isNaN (.parse js/Date (patient :birthdate)))
+                                     [false "Неверный формат даты"]
+                                     [true nil]))
                       :name (if (clojure.string/blank? (patient :name))
                               [false "Имя обязательно"]
                               [true nil])
