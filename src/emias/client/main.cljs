@@ -1,6 +1,6 @@
 (ns emias.client
   (:require [reagent.dom]
-            [emias.client.data :refer [fetch-patients]]
+            [emias.client.data :refer [fetch-patients info]]
             [emias.client.patients :refer [data-table]]
             [emias.client.create :refer [new-patient]]
             [emias.client.search :refer [search-form]]
@@ -15,6 +15,7 @@
     [:div {:class "formwrapper" }
      [:h2 "Новый пациент"]
      [new-patient]]]
+   [:div {:class "info"} @info]
    [:div {:id "tablecontainer"}
     [data-table]]
    [pager]])

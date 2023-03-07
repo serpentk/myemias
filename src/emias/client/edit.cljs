@@ -1,5 +1,10 @@
 (ns emias.client.edit
-  (:require [emias.client.patient :refer [check-patient parse-patient-location fetch-patient make-location-json reset-patient]]
+  (:require [emias.client.patient :refer [check-patient
+                                          parse-patient-location
+                                          fetch-patient
+                                          make-location-json
+                                          reset-patient
+                                          handle-edit-error]]
             [emias.client.data :refer [patients]]
             [ajax.core :refer [GET PUT]]))
 
@@ -127,6 +132,7 @@
              :disabled (not (first (check-patient p)))
              :on-click #(PUT (str "/patients/" (:id p) "/")
                              {:format :json
+                              :error-handler handle-edit-error
                               :handler (handle-edited p)
                               :params (select-keys (get @patients (:id p)) edit-fields)})}]
     [:input {:type "button"

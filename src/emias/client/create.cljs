@@ -1,6 +1,9 @@
 (ns emias.client.create
   (:require [ajax.core :refer [POST]]
-            [emias.client.patient :refer [check-patient make-location-json parse-patient-location]]
+            [emias.client.patient :refer [check-patient
+                                          make-location-json
+                                          parse-patient-location
+                                          handle-edit-error]]
             [emias.client.data :refer [new-patient-data fetch-patients]]))
 
 (defn handle-patient-added []
@@ -122,6 +125,7 @@
                   :disabled (not (first (check-patient @new-patient-data)))
                   :on-click #(POST "/patients/"
                                    {:format :json
+                                    :error-handler handle-edit-error
                                     :handler handle-patient-added
                                     :params @new-patient-data})}]]])
 

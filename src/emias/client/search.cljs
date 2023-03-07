@@ -101,4 +101,9 @@
    [:div [:input {:type "button"
                   :class "button"
                   :value "Пошёл страус!"
-                  :on-click fetch-patients}]]])
+                  :on-click fetch-patients}]]
+   [:div [:input {:type "button"
+                  :class "button"
+                  :value "Очистить"
+                  :on-click #((reset! search-params {:gender ""})
+                              (fetch-patients))}]]])
