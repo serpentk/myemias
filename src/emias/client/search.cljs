@@ -26,12 +26,26 @@
              :value (:surname @search-params)
              :on-change #(swap! search-params assoc :surname (-> % .-target .-value) )}]]
    [:div {:class "textwrapper"}
-    [:label {:for "birthdate"} "Дата рождения: "]
+    [:label {:for "birthdate"} "Точная дата рождения: "]
     [:input {:type "text"
              :id "birthdate"
              :name "birthdate"
              :value (:birthdate @search-params)
              :on-change #(swap! search-params assoc :birthdate (-> % .-target .-value) )}]]
+   [:div {:class "textwrapper"}
+    [:label {:for "birthdate"} "Дата рождения от: "]
+    [:input {:type "text"
+             :id "from"
+             :name "from"
+             :value (:from @search-params)
+             :on-change #(swap! search-params assoc :from (-> % .-target .-value) )}]]
+   [:div {:class "textwrapper"}
+    [:label {:for "birthdate"} "Дата рождения до"]
+    [:input {:type "text"
+             :id "to"
+             :name "to"
+             :value (:to @search-params)
+             :on-change #(swap! search-params assoc :to (-> % .-target .-value) )}]]
    [:div {:class "textwrapper"}
     [:label {:for "index"} "Индекс: "]
     [:input {:type "text"
