@@ -8,7 +8,7 @@
 
 (defn handle-patient-added []
   (do
-    (reset! new-patient-data {:gender "f"})
+    (reset! new-patient-data {:gender "f" :active true})
     (fetch-patients)))
 
 (defn new-patient []
@@ -115,6 +115,7 @@
     [:label {:for "gender"} "Пол: "]
     [:select {:name "gender"
               :id "gender"
+              :value (:gender @new-patient-data)
               :on-change #(swap! new-patient-data assoc :gender (-> % .-target .-value) )}
      [:option {:value "f"} "ж"]
      [:option {:value "m"} "м"]]]
