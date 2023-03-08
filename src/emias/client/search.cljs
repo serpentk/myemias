@@ -2,6 +2,15 @@
   (:require [reagent.core]
             [emias.client.data :refer [search-params fetch-patients]]))
 
+(defn date-valid? [d]
+  (or (clojure.string/blank? d) (not (js/isNaN (.parse js/Date d)))))
+
+(defn search-valid? []
+  (and
+   (date-valid? (:birthdate @search-params))
+   (date-valid? (:from @search-params))
+   (date-valid? (:to @search-params))))
+
 (defn search-form []
   [:form {:id "search" :on-submit #(.preventDefault %)}
    [:div {:class "textwrapper"}
@@ -26,7 +35,7 @@
              :value (:surname @search-params)
              :on-change #(swap! search-params assoc :surname (-> % .-target .-value) )}]]
    [:div {:class "textwrapper"}
-    [:label {:for "birthdate"} "Точная дата рождения: "]
+    [:label {:for "birthdate"} "Дата рождения: "]
     [:input {:type "text"
              :id "birthdate"
              :name "birthdate"
@@ -40,7 +49,7 @@
              :value (:from @search-params)
              :on-change #(swap! search-params assoc :from (-> % .-target .-value) )}]]
    [:div {:class "textwrapper"}
-    [:label {:for "birthdate"} "Дата рождения до"]
+    [:label {:for "birthdate"} "Дата рождения до: "]
     [:input {:type "text"
              :id "to"
              :name "to"
@@ -115,6 +124,7 @@
    [:div [:input {:type "button"
                   :class "button"
                   :value "Пошёл страус!"
+                  :disabled (not (search-valid?))
                   :on-click fetch-patients}]]
    [:div [:input {:type "button"
                   :class "button"
