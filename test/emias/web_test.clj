@@ -28,6 +28,40 @@
     (is (= 404 (:status (sut/app {:uri "/patients/100500/"
                                   :request-method :get}))))))
 
+(deftest test-filter
+  (testing "Filter by birthdate"
+    (let [patient (db/create-patient patient-data)
+          filter-date (sut/app {:uri "/patients/"
+                                :params {"birthdate" "1696-02-29"}
+                                :request-method :get})
+          filtered-date-exact (:result (json/read-json (:body filter-date)))
+          filter-wrong-date (sut/app {:uri "/patients/"
+                                      :params {"birthdate" "1696-02-28"}
+                                      :request-method :get})
+          filtered-wrong-date (:result (json/read-json (:body filter-wrong-date)))
+          filter-from-success (sut/app {:uri "/patients/"
+                                        :params {"from" "1696-02-01"}
+                                        :request-method :get})
+          filtered-from-success (:result (json/read-json (:body filter-from-success)))
+          filter-from-empty (sut/app {:uri "/patients/"
+                                      :params {"from" "1696-03-01"}
+                                      :request-method :get})
+          filtered-from-empty (:result (json/read-json (:body filter-from-empty)))
+          filter-to-success (sut/app {:uri "/patients/"
+                                      :params {"to" "1696-03-01"}
+                                      :request-method :get})
+          filtered-to-success (:result (json/read-json (:body filter-to-success)))
+          filter-to-empty (sut/app {:uri "/patients/"
+                                    :params {"to" "1696-02-01"}
+                                    :request-method :get})
+          filtered-to-empty (:result (json/read-json (:body filter-to-empty)))]
+      (is (= 1 (count filtered-date-exact)))
+      (is (= 0 (count filtered-wrong-date)))
+      (is (= 1 (count filtered-from-success)))
+      (is (= 0 (count filtered-from-empty)))
+      (is (= 1 (count filtered-to-success)))
+      (is (= 0 (count filtered-to-empty))))))
+
 (deftest test-create-edit-delete
   (testing "Life cycle"
     (let [create-response (sut/app {:uri "/patients/"

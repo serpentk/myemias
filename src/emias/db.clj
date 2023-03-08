@@ -48,8 +48,15 @@
     (if (some? patient)
       (prepare-patient patient) nil)))
 
+(defn get-filter-by-param [p]
+  (case p
+    "from" "birthdate>=?"
+    "to" "birthdate<=?"
+    (format "%s=?" p))
+  )
+
 (defn get-filter-string [filters]
-  (reduce #(format "%s and %s=?" %1 (name %2)) "where true" (keys filters))
+  (reduce #(format "%s and %s" %1 (get-filter-by-param (name %2))) "where true" (keys filters))
   )
 
 (defn get-sorting [sorting]

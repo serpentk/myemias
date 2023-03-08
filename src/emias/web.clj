@@ -21,7 +21,7 @@
   (format "location->>'%s'" f))
 
 (defn get-filters [params]
-  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender :active)
+  (let [allowed '(:id :name :surname :patronymic :birthdate :policy :gender :active :from :to)
         location-fields '(:index :region :city :street :house :building :flat)
         simple-filters (reduce #(if (params (name %2)) (assoc %1 %2 (params (name %2))) %1)
                                {}
